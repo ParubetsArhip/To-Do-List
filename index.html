@@ -12,41 +12,58 @@
 
 <body>
 
-<div class="container">
-    <h1 class="container__title">To-Do-List</h1>
+<main class="todo-app">
+    <section class="todo-form">
+        <h1>Add a Task</h1>
+        <form id="todo-form">
+            <input id="inputName" type="text" name="title" placeholder="Task Title" required />
+            <select id="inputPriority" name="priority">
+                <option value="">Priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <textarea id="inputDescription" name="description" placeholder="Description"></textarea>
+            <input id="inputDate" type="datetime-local" name="datetime" required />
+            <button disabled id="btnAddNote" type="submit">Add</button>
+        </form>
+    </section>
 
-    <div class="container__content">
-        <div class="container__content__top">
-            <button class="btn__add__new__todo">Add a new to-do</button>
-            <ul class="three__buttons">
-                <li>
-                    <button class="three__buttons__btn btn__all">All</button>
-                </li>
-                <li>
-                    <button class="three__buttons__btn btn__to__do">To-Do</button>
-                </li>
-                <li>
-                    <button class="three__buttons__btn btn__completed">Completed</button>
-                </li>
-            </ul>
-        </div>
 
-        <div class="container__content__bottom">
-            <ul class="container__content__bottom__list">
-                <li>Task</li>
-                <li>Description</li>
-                <li>Category</li>
-                <li>When</li>
-                <li>Priority</li>
-                <li>Fulfillment</li>
-            </ul>
-        </div>
-    </div>
-</div>
+    <!-- <section class="todo-filters">
+        <h2>Пошук та фільтрація</h2>
+        <input type="text" id="search-title" placeholder="Пошук за назвою" />
+        <input type="text" id="search-description" placeholder="Пошук за описом" />
+        <select id="search-priority">
+            <option value="">Усі пріоритети</option>
+            <option value="low">Низький</option>
+            <option value="medium">Середній</option>
+            <option value="high">Високий</option>
+        </select>
+        <input type="datetime-local" id="search-datetime" />
+    </section> -->
+
+    <!-- <section class="todo-sort">
+        <h2>Сортування</h2>
+        <select id="sort-by">
+            <option value="priority">За пріоритетом</option>
+            <option value="datetime">За датою і часом</option>
+        </select>
+    </section> -->
+
+    <!-- <section class="todo-range">
+        <h2>Період</h2>
+        <button data-range="day">На день</button>
+        <button data-range="week">На тиждень</button>
+        <button data-range="month">На місяць</button>
+    </section> -->
+
+    <section class="todo-list" id="todo-list">
+        <h2>To-do list</h2>
+        <!-- Список задач -->
+    </section>
+</main>
 
 </body>
 
 </html>
-
-
-
