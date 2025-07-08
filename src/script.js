@@ -2,6 +2,7 @@ import './style.scss'
 
 const form = document.getElementById('todo-form')
 const toDoList = document.getElementById('todo-list')
+const searchInput = document.getElementById('search')
 
 const inputName = document.getElementById('inputName')
 const inputPriority = document.getElementById('inputPriority')
@@ -9,89 +10,124 @@ const inputDescription = document.getElementById('inputDescription')
 const inputDate = document.getElementById('inputDate')
 const btnAddNote = document.getElementById('btnAddNote')
 
-let counterNote = 0
+const modal = document.getElementById('modal')
+const editTitle = document.getElementById('edit-title')
+const editDescription = document.getElementById('edit-description')
+const editDate = document.getElementById('edit-date')
+const submitEdit = document.getElementById('submitEdit')
+const closeModal = document.getElementById('closeModal')
+
+let notes = []
 let currentEditId = null
 
 function validateInputs() {
-    const name = inputName.value.trim()
-    const priority = inputPriority.value.trim()
-    const data = inputDate.value.trim()
-
-    btnAddNote.disabled = !name || !priority || !data
+  const name = inputName.value.trim()
+  const priority = inputPriority.value.trim()
+  const date = inputDate.value.trim()
+  btnAddNote.disabled = !name || !priority || !date
 }
 
-inputName.addEventListener('input', validateInputs)
-inputPriority.addEventListener('change', validateInputs)
-inputDescription.addEventListener('input', validateInputs)
-inputDate.addEventListener('change', validateInputs)
+function openModal(note) {
+  modal.classList.remove('hidden')
+  modal.classList.add('visible')
+  editTitle.value = note.title
+  editDescription.value = note.description
+  editDate.value = note.datetime
+  currentEditId = note.id
+}
 
-function createNoteElement(id, title, priority, description, datetime) {
-    const newNote = document.createElement('div')
-    newNote.classList.add('new-note')
-    newNote.dataset.id = id
-    newNote.innerHTML = `
-        <p class="to-do">№${id}:</p>
-        <p><span class="to-do">Name: </span>${title}</p>
-        <p><span class="to-do">Priority:</span> ${priority}</p>
-        <p><span class="to-do">Description: </span>${description}</p>
-        <p><span class="to-do">Date: </span>${datetime}</p>
-        <div class="note-actions">
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
+function closeModalWindow() {
+  modal.classList.add('hidden')
+  modal.classList.remove('visible')
+  currentEditId = null
+}
+
+function renderNotes(filter = '') {
+  toDoList.innerHTML = '<h2>To-do list</h2>'
+  notes
+    .filter(note =>
+      note.title.toLowerCase().includes(filter.toLowerCase()) ||
+      note.description.toLowerCase().includes(filter.toLowerCase())
+    )
+    .forEach(note => {
+      const div = document.createElement('div')
+      div.className = 'todo-item fade-in'
+      div.innerHTML = `
+        <h3>${note.title}</h3>
+        <p>${note.description}</p>
+        <p class="meta">Priority: ${note.priority} | Date: ${note.datetime}</p>
+        <div class="actions">
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
         </div>
-    `
+      `
 
-    newNote.querySelector('.delete-btn').addEventListener('click', () => {
-        toDoList.removeChild(newNote)
+      div.querySelector('.delete-btn').addEventListener('click', () => {
+        notes = notes.filter(n => n.id !== note.id)
+        renderNotes(searchInput.value)
+      })
+
+      div.querySelector('.edit-btn').addEventListener('click', () => {
+        openModal(note)
+      })
+
+      toDoList.appendChild(div)
     })
-
-    newNote.querySelector('.edit-btn').addEventListener('click', () => {
-        currentEditId = id
-
-        inputName.value = title
-        inputPriority.value = priority
-        inputDescription.value = description
-        inputDate.value = datetime
-
-        btnAddNote.textContent = 'Update'
-        validateInputs()
-    })
-
-    return newNote
 }
 
 form.addEventListener('submit', e => {
-    e.preventDefault()
+  e.preventDefault()
+  const title = inputName.value.trim()
+  const priority = inputPriority.value.trim()
+  const description = inputDescription.value.trim()
+  const datetime = inputDate.value.trim()
+  if (!title || !priority || !datetime) return
 
-    const getInputName = inputName.value.trim()
-    const getInputPriority = inputPriority.value.trim()
-    const getInputDescription = inputDescription.value.trim()
-    const getInputDate = inputDate.value.trim()
+  notes.push({
+    id: Date.now(),
+    title,
+    priority,
+    description,
+    datetime
+  })
 
-    if (!getInputName || !getInputPriority || !getInputDate) return
+  inputName.value = ''
+  inputPriority.value = ''
+  inputDescription.value = ''
+  inputDate.value = ''
+  btnAddNote.disabled = true
+  renderNotes(searchInput.value)
+})
 
-    if (currentEditId) {
-        const noteToEdit = toDoList.querySelector(`[data-id="${currentEditId}"]`)
-        if (noteToEdit) {
-            noteToEdit.querySelector('p:nth-child(2)').innerHTML = `<span class="to-do">Назва: </span>${getInputName}`
-            noteToEdit.querySelector('p:nth-child(3)').innerHTML = `<span class="to-do">Пріоритет:</span> ${getInputPriority}`
-            noteToEdit.querySelector('p:nth-child(4)').innerHTML = `<span class="to-do">Опис: </span>${getInputDescription}`
-            noteToEdit.querySelector('p:nth-child(5)').innerHTML = `<span class="to-do">Дата: </span>${getInputDate}`
+submitEdit.addEventListener('click', () => {
+  const newTitle = editTitle.value.trim()
+  const newDesc = editDescription.value.trim()
+  const newDate = editDate.value.trim()
 
-            currentEditId = null
-            btnAddNote.textContent = 'Add'
-        }
-    } else {
-        const newNote = createNoteElement(++counterNote, getInputName, getInputPriority, getInputDescription, getInputDate)
-        toDoList.appendChild(newNote)
+  if (!newTitle || !newDate) return
+
+  notes = notes.map(note => {
+    if (note.id === currentEditId) {
+      return {
+        ...note,
+        title: newTitle,
+        description: newDesc,
+        datetime: newDate
+      }
     }
+    return note
+  })
+  closeModalWindow()
+  renderNotes(searchInput.value)
+})
 
-    inputName.value = ''
-    inputPriority.value = ''
-    inputDescription.value = ''
-    inputDate.value = ''
+closeModal.addEventListener('click', closeModalWindow)
 
-    validateInputs()
+searchInput.addEventListener('input', () => {
+  renderNotes(searchInput.value)
 })
 
 validateInputs()
+inputName.addEventListener('input', validateInputs)
+inputPriority.addEventListener('change', validateInputs)
+inputDate.addEventListener('change', validateInputs)
