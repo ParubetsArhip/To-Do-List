@@ -11,5 +11,8 @@
   "devDependencies": {
     "sass": "^1.89.2",
     "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "flatpickr": "^4.6.13"
   }
 }
